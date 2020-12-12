@@ -22,6 +22,8 @@
 **/
 Piezas::Piezas()
 {
+    turn = X;
+    board.resize(BOARD_ROWS, std::vector<Piece> (BOARD_COLS, Blank));
 }
 
 /**
@@ -30,6 +32,9 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+    for(int i = 0; i < BOARD_ROWS; i++)
+        for(int j = 0; j < BOARD_COLS; j++)
+            board[i][j] = Blank;
 }
 
 /**
@@ -42,6 +47,25 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
+    //swap turn piece
+    Piece current = turn;
+    if(turn == X)
+        turn = O;
+    else
+        turn = X;
+    
+    //check bounds
+    if(column < 0 || column >= BOARD_COLS)
+        return Invalid;
+    
+    //drop piece
+    for(int i = 0; i < BOARD_ROWS; i--){
+        if(board[i][column] == Blank){
+            board[i][column] = current;
+            return current;
+        }        
+    }
+    //column full
     return Blank;
 }
 
@@ -51,7 +75,10 @@ Piece Piezas::dropPiece(int column)
 **/
 Piece Piezas::pieceAt(int row, int column)
 {
-    return Blank;
+    if(column < 0 || column >= BOARD_COLS || row < 0 || row >= BOARD_ROWS)
+        return Invalid;
+
+    return board[row][column];
 }
 
 /**
@@ -65,5 +92,60 @@ Piece Piezas::pieceAt(int row, int column)
 **/
 Piece Piezas::gameState()
 {
-    return Blank;
+    int x_max = 0;
+    int y_max = 0;
+
+    //horizontal counter
+    for(int i = 0; i < BOARD_ROWS; i++){
+        int x_total = 0; 
+        int y_total = 0;
+        for(int j = 0; j < BOARD_COLS; j++){
+            if(board[i][j] == X){
+                x_total++;
+                y_total = 0;
+            }
+            else if(board[i][j] == O){
+                x_total = 0;
+                y_total++;
+            }
+            else
+                return Invalid;
+        }
+        //track horizontal top score
+        if(x_total > x_max)
+            x_max = x_total;
+        if(y_total > y_max)
+            y_max = y_total;
+    }
+
+    //vertical counter
+    for(int i = 0; i < BOARD_COLS; i++){
+        int x_total = 0;
+        int y_total = 0;
+        for(int j = 0; j < BOARD_ROWS; j++){
+            if(board[i][j] == X){
+                x_total++;
+                y_total = 0;
+            }
+            else if(board[i][j] == O){
+                x_total = 0;
+                y_total++;
+            }
+            else
+                return Invalid;
+        }
+        //track vertical top score
+        if(x_total > x_max)
+            x_max = x_total;
+        if(y_total > y_max)
+            y_max = y_total;
+    }
+
+    //pick winner
+    if(x_max > y_max)
+        return X;
+    else if(y_max > x_max)
+        return O;
+    else 
+        return Blank;
 }
