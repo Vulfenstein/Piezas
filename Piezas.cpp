@@ -59,7 +59,7 @@ Piece Piezas::dropPiece(int column)
         return Invalid;
     
     //drop piece
-    for(int i = 0; i < BOARD_ROWS; i--){
+    for(int i = 0; i < BOARD_ROWS; i++){
         if(board[i][column] == Blank){
             board[i][column] = current;
             return current;
